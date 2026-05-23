@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - KPI Atenciones</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>KPI Atenciones</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" id="link-principal" class="active"><i data-lucide="layout-dashboard"></i> Panel
+                    Principal</a>
+                <a href="#" id="link-Tecnicos"><i data-lucide="users"></i> Técnicos</a>
+                <a href="#" id="link-tickets"><i data-lucide="tickets"></i> Tickets</a>
+                <a href="#" id="link-reportes"><i data-lucide="bar-chart-3"></i> Reportes</a>
+                <a href="#" id="link-almacenamiento"><i data-lucide="hard-drive"></i> Almacenamiento</a>
+            </nav>
+        </aside>
+        <div class="main-wrapper">
+            <header class="header">
+                <div class="user-profile" id="user-profile-menu">
+                    <span id="user-email">Cargando...</span>
+                    <div class="avatar"><i data-lucide="user"></i></div>
+                    <div class="dropdown-content" id="dropdown-menu">
+                        <a href="#" id="btn-logout" class="logout-link">
+                            <i data-lucide="log-out"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </header>
+            <main class="content">
+                <!-- PANEL PRINCIPAL -->
+                <div id="panel-principal" class="tab-content">
+                    <div class="content-header">
+                        <h1>Panel Principal</h1>
+                    </div>
+                    <div class="grid-cards">
+                        <div class="card">
+                            <div class="card-info">
+                                <span class="kpi-dot red"></span>
+                                <p class="kpi-label">Tickets totales</p>
+                                <h3 id="kpi-total-atenciones">-</h3>
+                                <p class="kpi-sub" id="kpi-sub-total">-</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-info">
+                                <span class="kpi-dot purple"></span>
+                                <p class="kpi-label">Tickets de Analistas</p>
+                                <h3 id="kpi-tiempo-espera" style="font-size:0.85rem;">-</h3>
+                                <p class="kpi-sub" id="kpi-sub-tiempo">Del mes actual</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-info">
+                                <span class="kpi-dot pink"></span>
+                                <p class="kpi-label">Cumplimiento SLA</p>
+                                <h3 id="kpi-tasa-solucion">-</h3>
+                                <p class="kpi-sub">Meta SLA: &lt; 2h</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Gráficos superiores -->
+                    <div class="charts-grid">
+                        <div class="charts-section">
+                            <h3 class="chart-title">Tickets por técnico</h3>
+                            <p class="chart-subtitle">Requerimientos · Incidencias · Mantenimientos</p>
+                            <div class="canvas-wrapper"><canvas id="chart-barras"></canvas></div>
+                        </div>
+                        <div class="charts-section">
+                            <h3 class="chart-title">Distribución de tipos</h3>
+                            <p class="chart-subtitle">Según filtro activo</p>
+                            <div class="canvas-wrapper donut-wrapper"><canvas id="chart-donut"></canvas></div>
+                        </div>
+                    </div>
+                    <!-- Tabla de productividad -->
+                    <div class="charts-section" style="margin-top: 24px;">
+                        <h3 class="chart-title">Productividad por técnico</h3>
+                        <div id="tabla-productividad"></div>
+                    </div>
+                </div>
+
+                <!-- PANEL TÉCNICOS -->
+                <div id="panel-Tecnicos" class="tab-content hidden">
+                    <div class="content-header">
+                        <h1>Módulo de Técnicos</h1>
+                    </div>
+
+                    <!-- Tarjeta de rendimiento del técnico logueado -->
+                    <div id="rendimiento-container"></div>
+
+                    <!-- Histórico personal -->
+                    <div id="historico-container" style="margin-top:24px;"></div>
+                </div>
+
+                <!-- PANEL TICKETS -->
+                <div id="panel-tickets" class="tab-content hidden">
+                    <div class="content-header">
+                        <h1>Registro de Tickets</h1>
+                    </div>
+                    <!-- Formulario -->
+                    <div class="ticket-form-card">
+                        <h3 class="chart-title" style="margin-bottom:20px">Nuevo Ticket</h3>
+                        <div class="ticket-form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Técnico</label>
+                                <input type="text" id="tk-tecnico" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Usuario</label>
+                                <input type="text" id="tk-usuario" class="form-input" placeholder="Nombre del usuario">
+                            </div>
+                            <div class="form-group form-group-full">
+                                <label class="form-label">Tipo de Ticket</label>
+                                <div class="tipo-btns">
+                                    <button class="tipo-btn" data-tipo="REQUERIMIENTO">Requerimiento</button>
+                                    <button class="tipo-btn" data-tipo="INCIDENCIA">Incidencia</button>
+                                </div>
+                                <input type="hidden" id="tk-tipo">
+                            </div>
+                            <div class="form-group form-group-full">
+                                <label class="form-label">Descripción</label>
+                                <textarea id="tk-descripcion" class="form-input form-textarea"
+                                    placeholder="Describe el problema o requerimiento..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fecha</label>
+                                <input type="text" id="tk-fecha" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hora de Inicio</label>
+                                <div class="hora-picker">
+                                    <select id="tk-hi-h" class="hora-select"></select>
+                                    <span class="hora-sep">:</span>
+                                    <select id="tk-hi-m" class="hora-select"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hora de Fin</label>
+                                <div class="hora-picker">
+                                    <select id="tk-hf-h" class="hora-select"></select>
+                                    <span class="hora-sep">:</span>
+                                    <select id="tk-hf-m" class="hora-select"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top:24px; display:flex; gap:12px; align-items:center">
+                            <button id="btn-guardar-ticket" class="btn-guardar">Guardar Ticket</button>
+                            <span id="tk-mensaje" class="tk-mensaje"></span>
+                        </div>
+                    </div>
+                    <!-- Historial -->
+                    <div class="charts-section" style="margin-top:24px">
+                        <h3 class="chart-title" style="margin-bottom:16px">Historial del mes</h3>
+                        <div id="tabla-tickets-historial"></div>
+                    </div>
+                </div>
+
+                <!-- PANEL ALMACENAMIENTO -->
+                <div id="panel-almacenamiento" class="tab-content hidden">
+                    <div class="content-header">
+                        <h1>Almacenamiento</h1>
+                        <p>Gestión de discos duros y backups de usuarios cesados.</p>
+                    </div>
+
+                    <!-- Botón nuevo disco + Buscador -->
+                    <div style="margin-bottom:24px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                        <button id="btn-nuevo-disco" class="btn-guardar">
+                            + Nuevo Disco
+                        </button>
+                        <div style="position:relative; flex:1; min-width:220px; max-width:380px;">
+                            <input id="buscador-usuario" type="text" placeholder="🔍 Buscar usuario en discos..." style="width:100%; padding:9px 14px; border-radius:8px;
+                border:1px solid #334155; background:#1e293b; color:#e2e8f0;
+                font-size:14px; outline:none; box-sizing:border-box;">
+                        </div>
+                    </div>
+
+                    <!-- Resultado de búsqueda -->
+                    <div id="resultado-busqueda" style="display:none; margin-bottom:20px;
+    background:#1e293b; border:1px solid #334155; border-radius:10px; padding:16px;">
+                    </div>
+
+                    <!-- Tarjetas de discos -->
+                    <div id="lista-discos"
+                        style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:20px;">
+                    </div>
+
+                    <!-- ── Modal: Disco ─────────────────────────────── -->
+                    <div id="modal-disco" class="hidden" style="position:fixed; inset:0; background:#00000080;
+                        display:flex; align-items:center; justify-content:center; z-index:1000;">
+                        <div style="background:#0f172a; border:1px solid #1e293b; border-radius:12px;
+                            padding:32px; width:100%; max-width:460px; box-shadow:0 20px 60px #0008;">
+                            <h3 id="modal-disco-titulo" style="color:#e2e8f0; margin-bottom:24px; font-size:16px;">Nuevo
+                                Disco</h3>
+                            <input type="hidden" id="disco-edit-id">
+
+                            <div style="display:grid; gap:14px;">
+                                <div class="form-group">
+                                    <label class="form-label">ID del Disco <span
+                                            style="color:#64748b; font-size:11px;">(ej: HD-001)</span></label>
+                                    <input id="disco-idDisco" type="text" class="form-input" placeholder="HD-001"
+                                        autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nombre / Descripción <span
+                                            style="color:#64748b; font-size:11px;">(opcional)</span></label>
+                                    <input id="disco-nombre" type="text" class="form-input"
+                                        placeholder="Ej: Backup RRHH 2024" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Número de Serie</label>
+                                    <input id="disco-numSerie" type="text" class="form-input"
+                                        placeholder="WD-XXXXXXXXXXXX" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Capacidad (GB)</label>
+                                    <input id="disco-capacidad" type="number" class="form-input" placeholder="1000"
+                                        min="1" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Estado</label>
+                                    <select id="disco-operativo" class="form-input hora-select"
+                                        style="width:100%; padding:10px;">
+                                        <option value="true">Operativo</option>
+                                        <option value="false">No operativo</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <span id="msg-disco"
+                                style="display:block; font-size:13px; margin-top:12px; min-height:18px;"></span>
+
+                            <div style="display:flex; gap:10px; margin-top:20px;">
+                                <button id="btn-guardar-disco" class="btn-guardar" style="flex:1;">Guardar</button>
+                                <button id="btn-cancelar-disco" class="btn-guardar"
+                                    style="flex:1; background:#1e293b; border:1px solid #334155;">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Modal: Usuarios del disco ────────────────── -->
+                    <div id="modal-usuarios-disco" class="hidden" style="position:fixed; inset:0; background:#00000080;
+                        display:flex; align-items:center; justify-content:center; z-index:1000;">
+                        <div style="background:#0f172a; border:1px solid #1e293b; border-radius:12px;
+                            padding:32px; width:100%; max-width:520px; max-height:85vh; overflow-y:auto;
+                            box-shadow:0 20px 60px #0008;">
+                            <h3 id="modal-usuarios-titulo" style="color:#e2e8f0; margin-bottom:20px; font-size:16px;">
+                                Usuarios en disco</h3>
+
+                            <!-- Lista de usuarios existentes -->
+                            <div id="lista-usuarios-disco" style="margin-bottom:24px;"></div>
+
+                            <!-- Formulario agregar/editar usuario -->
+                            <div style="border-top:1px solid #1e293b; padding-top:20px;">
+                                <h4
+                                    style="color:#94a3b8; font-size:13px; margin-bottom:14px; text-transform:uppercase; letter-spacing:.5px;">
+                                    Agregar / Editar usuario
+                                </h4>
+                                <input type="hidden" id="bu-edit-id">
+                                <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end;">
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Nombre del usuario</label>
+                                        <input id="bu-nombre" type="text" class="form-input"
+                                            placeholder="Ej: Juan Pérez">
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Peso (GB)</label>
+                                        <input id="bu-peso" type="number" class="form-input" placeholder="120" min="0.1"
+                                            step="0.1" style="width:90px;">
+                                    </div>
+                                </div>
+                                <span id="msg-backup-usuario"
+                                    style="display:block; font-size:13px; margin-top:8px; min-height:18px;"></span>
+                                <div style="display:flex; gap:10px; margin-top:14px;">
+                                    <button id="btn-guardar-backup-usuario" class="btn-guardar" style="flex:1;">Guardar
+                                        usuario</button>
+                                    <button id="btn-cancelar-backup-usuario" class="btn-guardar"
+                                        style="flex:1; background:#1e293b; border:1px solid #334155;">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--PANEL DE REPORTES -->
+                <!-- PANEL REPORTES -->
+                <div id="panel-reportes" class="tab-content hidden">
+                    <div class="content-header">
+                        <h1>Centro de Reportes</h1>
+                        <p>Exporta el historial completo de tickets registrados en el sistema.</p>
+                    </div>
+                    <div class="grid-cards"
+                        style="grid-template-columns: repeat(1, 1fr); margin-bottom: 32px; max-width: 420px;">
+                        <div class="card"
+                            style="flex-direction: column; align-items: center; padding: 32px; text-align: center;">
+                            <div class="card-icon green" style="margin-bottom: 16px;"><i data-lucide="download"></i>
+                            </div>
+                            <h3>Descargar Tickets</h3>
+                            <p style="color: var(--texto-gris); margin-bottom: 20px; font-size: 14px;">
+                                Exporta todos los tickets registrados en el sistema en un archivo .csv listo para Excel.
+                            </p>
+                            <button id="btn-descargar-tickets" class="upload-btn"
+                                style="border: 1px solid var(--vscode-border); background: var(--vscode-bg-main); color: white;">
+                                ⬇️ Descargar Reporte (.csv)
+                            </button>
+                            <span id="msg-descarga" style="margin-top:12px; font-size:13px;"></span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="almacenamiento.js"></script>
+    <script src="Charts.js"></script>
+    <script type="module" src="tickets.js"></script>
+    <script type="module" src="panel-principal.js"></script>
+    <script type="module" src="rendimiento.js"></script>
+    <!-- Configuración Firebase y control de sesión -->
+    <script type="module" src="firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script type="module" src="script.js"></script>
+    <script>
+        lucide.createIcons(); 
+    </script>
+</body>
+
+</html>

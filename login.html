@@ -1,0 +1,52 @@
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - KPI Atenciones</title>
+    <!-- Vinculación con tu archivo central de estilos -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconos para los campos de texto -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="login-body">
+
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Bienvenido</h2>
+            <p>Ingresa tus credenciales para acceder al dashboard</p>
+            
+            <form id="login-form">
+                <!-- Campo: Correo Electrónico -->
+                <div class="input-group">
+                    <label for="email">Correo electrónico</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="mail"></i>
+                        <input type="email" id="email" placeholder="correo@ejemplo.com" required>
+                    </div>
+                </div>
+
+                <!-- Campo: Contraseña -->
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <!-- Botón de Envío -->
+                <button type="submit" class="btn-login">Ingresar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 1. Vinculamos tu archivo externo independiente de Firebase -->
+    <script type="module" src="auth.js"></script>
+
+    <!-- 2. Inicialización automática de los iconos visuales -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
