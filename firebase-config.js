@@ -34,27 +34,18 @@ function mostrarBienvenida(nombre) {
     overlay.id = 'bienvenida-overlay';
     overlay.innerHTML = `
         <div class="bienvenida-card">
-            <div class="bienvenida-logo">KPI Atenciones</div>
-            <p class="bienvenida-saludo">Bienvenido de vuelta</p>
-            <h1 class="bienvenida-nombre">${nombre}</h1>
-            <div class="bienvenida-barra">
-                <div class="bienvenida-barra-fill"></div>
+            <div class="bienvenida-logo">
+                <img src="Imagenes/logoinicioprimax.png" alt="PRIMAX">
             </div>
-            <p class="bienvenida-sub">Cargando tu panel...</p>
         </div>`;
     document.body.appendChild(overlay);
 
     // Animar barra
-    setTimeout(() => {
-        const fill = overlay.querySelector('.bienvenida-barra-fill');
-        if (fill) fill.style.width = '100%';
-    }, 100);
-
     // Desvanecer y eliminar
     setTimeout(() => {
         overlay.style.opacity = '0';
-        setTimeout(() => overlay.remove(), 600);
-    }, 4800);
+        setTimeout(() => overlay.remove(), 800);
+    }, 2500);
 }
 
 // ── Verificar sesión ──────────────────────────────────────────

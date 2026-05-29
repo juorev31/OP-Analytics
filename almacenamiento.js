@@ -238,24 +238,41 @@ function renderizarDiscos() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// ── Helper: obtener primer ID libre (reutiliza huecos) ────────
+function getSiguienteIdLibre() {
+    const idsUsados = new Set(
+        discosCache.map(d => parseInt(d.idDisco, 10)).filter(n => !isNaN(n))
+    );
+    let candidato = 1;
+    while (idsUsados.has(candidato)) candidato++;
+    return String(candidato).padStart(2, '0'); // → "01", "02", etc.
+}
+
 // ── Modal: Nuevo / Editar disco ───────────────────────────────
 function abrirModalDisco(discoId = null) {
     const modal = document.getElementById('modal-disco');
     const titulo = document.getElementById('modal-disco-titulo');
     if (!modal) return;
 
+    const campoId = document.getElementById('disco-idDisco');
+
     document.getElementById('disco-edit-id').value = discoId || '';
-    document.getElementById('disco-idDisco').value = '';
     document.getElementById('disco-nombre').value = '';
     document.getElementById('disco-numSerie').value = '';
     document.getElementById('disco-capacidad').value = '';
     document.getElementById('disco-operativo').value = 'true';
 
+    // El campo ID siempre es de solo lectura — lo asigna el sistema
+    campoId.disabled = true;
+    campoId.style.opacity = '0.45';
+    campoId.style.cursor = 'not-allowed';
+    campoId.style.userSelect = 'none';
+
     if (discoId) {
         const disco = discosCache.find(d => d.id === discoId);
         if (disco) {
             titulo.textContent = 'Editar Disco';
-            document.getElementById('disco-idDisco').value = disco.idDisco;
+            campoId.value = disco.idDisco;
             document.getElementById('disco-nombre').value = disco.nombre || '';
             document.getElementById('disco-numSerie').value = disco.numSerie;
             document.getElementById('disco-capacidad').value = disco.capacidadGB;
@@ -263,6 +280,7 @@ function abrirModalDisco(discoId = null) {
         }
     } else {
         titulo.textContent = 'Nuevo Disco';
+        campoId.value = getSiguienteIdLibre();
     }
 
     modal.classList.remove('hidden');
@@ -274,7 +292,8 @@ function cerrarModalDisco() {
 
 async function guardarDisco() {
     const editId = document.getElementById('disco-edit-id').value;
-    const idDisco = document.getElementById('disco-idDisco').value.trim();
+    const idDiscoRaw = document.getElementById('disco-idDisco').value; // campo deshabilitado, valor asignado por sistema
+    const idDisco = idDiscoRaw; // ya viene normalizado desde getSiguienteIdLibre() o del disco existente
     const nombre = document.getElementById('disco-nombre').value.trim();
     const numSerie = document.getElementById('disco-numSerie').value.trim();
     const capacidadGB = parseFloat(document.getElementById('disco-capacidad').value);
@@ -283,6 +302,16 @@ async function guardarDisco() {
 
     if (!idDisco || !numSerie || isNaN(capacidadGB) || capacidadGB <= 0) {
         mostrarMsg(msgEl, '⚠️ Completa todos los campos correctamente.', 'error'); return;
+    }
+
+    const duplicadoId = discosCache.some(d => parseInt(d.idDisco, 10) === parseInt(idDisco, 10) && d.id !== editId);
+    const duplicadoSerie = discosCache.some(d => d.numSerie === numSerie && d.id !== editId);
+
+    if (duplicadoId) {
+        mostrarMsg(msgEl, '⚠️ Ya existe un disco con ese ID.', 'error'); return;
+    }
+    if (duplicadoSerie) {
+        mostrarMsg(msgEl, '⚠️ Ya existe un disco con ese número de serie.', 'error'); return;
     }
 
     try {

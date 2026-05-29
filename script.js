@@ -23,17 +23,19 @@ const linkTecnicos = document.getElementById('link-Tecnicos');
 const linkTickets = document.getElementById('link-tickets');
 const linkReportes = document.getElementById('link-reportes');
 const linkAlmacenamiento = document.getElementById('link-almacenamiento');
+const linkCalendario = document.getElementById('link-calendario');
 
 const panelPrincipal = document.getElementById('panel-principal');
 const panelTecnicos = document.getElementById('panel-Tecnicos');
 const panelTickets = document.getElementById('panel-tickets');
 const panelReportes = document.getElementById('panel-reportes');
 const panelAlmacenamiento = document.getElementById('panel-almacenamiento');
+const panelCalendario = document.getElementById('panel-calendario');
 
 function limpiarPaneles() {
-    [panelPrincipal, panelTecnicos, panelTickets, panelReportes, panelAlmacenamiento]
+    [panelPrincipal, panelTecnicos, panelTickets, panelReportes, panelAlmacenamiento, panelCalendario]
         .forEach(p => p?.classList.add('hidden'));
-    [linkPrincipal, linkTecnicos, linkTickets, linkReportes, linkAlmacenamiento]
+    [linkPrincipal, linkTecnicos, linkTickets, linkReportes, linkAlmacenamiento, linkCalendario]
         .forEach(l => l?.classList.remove('active'));
 }
 
@@ -56,6 +58,11 @@ linkReportes?.addEventListener('click', e => {
 linkAlmacenamiento?.addEventListener('click', e => {
     e.preventDefault(); limpiarPaneles();
     panelAlmacenamiento.classList.remove('hidden'); linkAlmacenamiento.classList.add('active');
+});
+linkCalendario?.addEventListener('click', e => {
+    e.preventDefault(); limpiarPaneles();
+    panelCalendario.classList.remove('hidden'); linkCalendario.classList.add('active');
+    if (typeof window.iniciarCalendario === 'function') window.iniciarCalendario();
 });
 
 // ── Menú desplegable de usuario ───────────────────────────────

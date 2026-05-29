@@ -14,7 +14,7 @@
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="logo">
-                <h2>KPI Atenciones</h2>
+                <h2>PRIMAX</h2>
             </div>
             <nav class="nav-menu">
                 <a href="#" id="link-principal" class="active"><i data-lucide="layout-dashboard"></i> Panel
@@ -23,10 +23,23 @@
                 <a href="#" id="link-tickets"><i data-lucide="tickets"></i> Tickets</a>
                 <a href="#" id="link-reportes"><i data-lucide="bar-chart-3"></i> Reportes</a>
                 <a href="#" id="link-almacenamiento"><i data-lucide="hard-drive"></i> Almacenamiento</a>
+                <a href="#" id="link-calendario"><i data-lucide="calendar"></i> Calendario</a>
             </nav>
         </aside>
         <div class="main-wrapper">
             <header class="header">
+                <!-- Logo + Reloj -->
+                <div class="header-left">
+                    <button class="btn-hamburger" id="btn-hamburger" aria-label="Menú">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <img src="Imagenes/relojimagen.png" alt="PRIMAX" class="header-logo">
+                    <div class="header-datetime">
+                        <span id="header-hora" class="header-hora"></span>
+                        <span id="header-fecha" class="header-fecha"></span>
+                    </div>
+                </div>
+                <!-- Perfil usuario -->
                 <div class="user-profile" id="user-profile-menu">
                     <span id="user-email">Cargando...</span>
                     <div class="avatar"><i data-lucide="user"></i></div>
@@ -196,7 +209,7 @@
 
                     <!-- ── Modal: Disco ─────────────────────────────── -->
                     <div id="modal-disco" class="hidden" style="position:fixed; inset:0; background:#00000080;
-                        display:flex; align-items:center; justify-content:center; z-index:1000;">
+                        align-items:center; justify-content:center; z-index:1000;">
                         <div style="background:#0f172a; border:1px solid #1e293b; border-radius:12px;
                             padding:32px; width:100%; max-width:460px; box-shadow:0 20px 60px #0008;">
                             <h3 id="modal-disco-titulo" style="color:#e2e8f0; margin-bottom:24px; font-size:16px;">Nuevo
@@ -249,7 +262,7 @@
 
                     <!-- ── Modal: Usuarios del disco ────────────────── -->
                     <div id="modal-usuarios-disco" class="hidden" style="position:fixed; inset:0; background:#00000080;
-                        display:flex; align-items:center; justify-content:center; z-index:1000;">
+                        align-items:center; justify-content:center; z-index:1000;">
                         <div style="background:#0f172a; border:1px solid #1e293b; border-radius:12px;
                             padding:32px; width:100%; max-width:520px; max-height:85vh; overflow-y:auto;
                             box-shadow:0 20px 60px #0008;">
@@ -308,18 +321,27 @@
                             <p style="color: var(--texto-gris); margin-bottom: 20px; font-size: 14px;">
                                 Exporta todos los tickets registrados en el sistema en un archivo .csv listo para Excel.
                             </p>
-                            <button id="btn-descargar-tickets" class="upload-btn"
-                                style="border: 1px solid var(--vscode-border); background: var(--vscode-bg-main); color: white;">
+                            <button id="btn-descargar-tickets" class="btn-guardar">
                                 ⬇️ Descargar Reporte (.csv)
                             </button>
                             <span id="msg-descarga" style="margin-top:12px; font-size:13px;"></span>
                         </div>
                     </div>
                 </div>
+                <!-- PANEL CALENDARIO -->
+                <div id="panel-calendario" class="tab-content hidden">
+                    <div class="content-header">
+                        <h1>Calendario de Pagos</h1>
+                        <p>Fechas de pago del año. Solo el administrador puede marcar los días.</p>
+                    </div>
+                    <div id="calendario-container"></div>
+                </div>
+
             </main>
         </div>
     </div>
 
+    <script type="module" src="calendario.js"></script>
     <script type="module" src="almacenamiento.js"></script>
     <script src="Charts.js"></script>
     <script type="module" src="tickets.js"></script>
@@ -331,6 +353,56 @@
     <script type="module" src="script.js"></script>
     <script>
         lucide.createIcons(); 
+    </script>
+    <script>
+        // Hamburguesa - solo móvil
+        const btnHam = document.getElementById('btn-hamburger');
+        const sidebar = document.querySelector('.sidebar');
+
+        // Crear overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'sidebar-overlay';
+        overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;';
+        document.body.appendChild(overlay);
+
+        function abrirSidebar() {
+            sidebar.classList.add('sidebar-open');
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarSidebar() {
+            sidebar.classList.remove('sidebar-open');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        btnHam?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.contains('sidebar-open') ? cerrarSidebar() : abrirSidebar();
+        });
+
+        overlay.addEventListener('click', cerrarSidebar);
+
+        // Cerrar al tocar un item del menú en móvil
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) cerrarSidebar();
+            });
+        });
+
+        // Reloj en tiempo real - Zona Lima
+        function actualizarReloj() {
+            const ahora = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' }));
+            const hora = ahora.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const fecha = ahora.toLocaleDateString('es-PE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            const horaEl = document.getElementById('header-hora');
+            const fechaEl = document.getElementById('header-fecha');
+            if (horaEl) horaEl.textContent = hora;
+            if (fechaEl) fechaEl.textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+        }
+        actualizarReloj();
+        setInterval(actualizarReloj, 1000);
     </script>
 </body>
 

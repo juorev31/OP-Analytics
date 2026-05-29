@@ -91,10 +91,10 @@ function renderBarras({ filas }) {
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#94a3b8', font: { size: 13 } } } },
+            plugins: { legend: { labels: { color: '#000000', font: { size: 13 } } } },
             scales: {
-                x: { ticks: { color: '#94a3b8' }, grid: { color: '#3c3c3c' } },
-                y: { ticks: { color: '#94a3b8' }, grid: { color: '#3c3c3c' }, beginAtZero: true }
+                x: { ticks: { color: '#000000' }, grid: { color: '#3c3c3c' } },
+                y: { ticks: { color: '#000000' }, grid: { color: '#3c3c3c' }, beginAtZero: true }
             }
         }
     });
@@ -121,7 +121,7 @@ function renderDonut({ filas }) {
         },
         options: {
             responsive: true, maintainAspectRatio: false, cutout: '65%',
-            plugins: { legend: { position: 'top', labels: { color: '#94a3b8', font: { size: 12 }, padding: 16 } } }
+            plugins: { legend: { position: 'top', labels: { color: '#000000', font: { size: 12 }, padding: 16 } } }
         }
     });
 }
